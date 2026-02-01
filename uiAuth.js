@@ -1,11 +1,7 @@
 /**
- * uiAuth.js
+ * uiAuth.js - WITH GOOGLE SIGN-IN UI
  * 
- * User interface logic for authentication.
- * Handles auth modal, forms, buttons, and UI state updates.
- * Separated from core auth logic for maintainability.
- * 
- * To modify: Change form layouts, add new UI elements, or adjust animations.
+ * Beautiful authentication UI with Google Sign-in option.
  */
 
 // Wait for DOM to be fully loaded
@@ -27,7 +23,7 @@ function initAuthUI() {
     // Listen for auth state changes from auth.js
     document.addEventListener('authStateChanged', handleAuthStateChangedUI);
     
-    console.log('Auth UI initialized');
+    console.log('Auth UI initialized with Google Sign-in');
 }
 
 /**
@@ -94,14 +90,14 @@ function showAuthModal(formType = 'login') {
     window.errorHandler?.hideError();
     
     // Set modal title
-    modalTitle.textContent = formType === 'login' ? 'Login to Your Account' : 'Create New Account';
+    modalTitle.textContent = formType === 'login' ? 'Welcome Back!' : 'Create Account';
     
     // Generate form HTML
     authFormContainer.innerHTML = generateAuthForm(formType);
     
     // Show modal
     authModal.classList.remove('hidden');
-    document.body.style.overflow = 'hidden'; // Prevent background scrolling
+    document.body.style.overflow = 'hidden';
     
     // Add form submission handler
     const form = document.getElementById('authForm');
@@ -125,6 +121,23 @@ function showAuthModal(formType = 'login') {
         forgotPasswordLink.addEventListener('click', handleForgotPassword);
     }
     
+    // Add Google sign-in button event listener
+    const googleSignInBtn = document.getElementById('googleSignInBtn');
+    if (googleSignInBtn) {
+        googleSignInBtn.addEventListener('click', handleGoogleSignIn);
+    }
+    
+    // Add password toggle visibility
+    const passwordToggle = document.querySelector('.password-toggle');
+    const passwordInput = document.getElementById('password');
+    if (passwordToggle && passwordInput) {
+        passwordToggle.addEventListener('click', () => {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            passwordToggle.textContent = type === 'password' ? '👁️' : '👁️‍🗨️';
+        });
+    }
+    
     // Focus first input
     setTimeout(() => {
         const firstInput = form?.querySelector('input');
@@ -141,7 +154,7 @@ function hideAuthModal() {
     const authModal = document.getElementById('authModal');
     if (authModal) {
         authModal.classList.add('hidden');
-        document.body.style.overflow = ''; // Restore scrolling
+        document.body.style.overflow = '';
     }
     
     // Clear any error messages
@@ -157,66 +170,91 @@ function generateAuthForm(formType) {
     const isLogin = formType === 'login';
     
     return `
-        <form id="authForm" class="form-container">
-            <div class="form-group">
-                <label for="email" class="form-label required">Email Address</label>
-                <input 
-                    type="email" 
-                    id="email" 
-                    class="form-input" 
-                    placeholder="you@example.com" 
-                    required
-                    autocomplete="email"
-                >
+        <div class="auth-form-container">
+            <div class="auth-form-header">
+                <p>${isLogin ? 'Sign in to continue to Boutique Bliss' : 'Join our community of style lovers'}</p>
             </div>
             
-            ${!isLogin ? `
-                <div class="form-group">
-                    <label for="displayName" class="form-label">Display Name (Optional)</label>
-                    <input 
-                        type="text" 
-                        id="displayName" 
-                        class="form-input" 
-                        placeholder="Your name" 
-                        autocomplete="name"
-                    >
-                </div>
-            ` : ''}
-            
-            <div class="form-group">
-                <label for="password" class="form-label required">Password</label>
-                <input 
-                    type="password" 
-                    id="password" 
-                    class="form-input" 
-                    placeholder="${isLogin ? 'Enter your password' : 'At least 6 characters'}" 
-                    required
-                    autocomplete="${isLogin ? 'current-password' : 'new-password'}"
-                    minlength="6"
-                >
-            </div>
-            
-            ${isLogin ? `
-                <div class="form-group" style="text-align: right;">
-                    <a href="#" id="forgotPasswordLink" class="text-small" style="color: var(--color-primary-dark);">
-                        Forgot your password?
-                    </a>
-                </div>
-            ` : ''}
-            
-            <div class="form-actions">
-                <button type="submit" class="btn btn-primary btn-block">
-                    ${isLogin ? 'Login' : 'Create Account'}
+            <!-- Google Sign-in Button -->
+            <div class="social-login">
+                <button type="button" id="googleSignInBtn" class="social-btn google">
+                    <span class="social-btn-icon">G</span>
+                    Continue with Google
                 </button>
             </div>
             
-            <div class="form-footer">
-                ${isLogin ? "Don't have an account? " : "Already have an account? "}
-                <a href="#" id="toggleAuthForm">
-                    ${isLogin ? 'Sign up here' : 'Login here'}
-                </a>
+            <!-- Divider -->
+            <div class="auth-divider">
+                <span>or continue with email</span>
             </div>
-        </form>
+            
+            <!-- Email/Password Form -->
+            <form id="authForm" class="form-container">
+                <div class="form-group">
+                    <label for="email" class="form-label required">Email Address</label>
+                    <input 
+                        type="email" 
+                        id="email" 
+                        class="form-input" 
+                        placeholder="you@example.com" 
+                        required
+                        autocomplete="email"
+                    >
+                </div>
+                
+                ${!isLogin ? `
+                    <div class="form-group">
+                        <label for="displayName" class="form-label">Display Name (Optional)</label>
+                        <input 
+                            type="text" 
+                            id="displayName" 
+                            class="form-input" 
+                            placeholder="Your preferred name" 
+                            autocomplete="name"
+                        >
+                    </div>
+                ` : ''}
+                
+                <div class="form-group">
+                    <label for="password" class="form-label required">Password</label>
+                    <div style="position: relative;">
+                        <input 
+                            type="password" 
+                            id="password" 
+                            class="form-input" 
+                            placeholder="${isLogin ? 'Enter your password' : 'Choose a secure password (min. 6 chars)'}" 
+                            required
+                            autocomplete="${isLogin ? 'current-password' : 'new-password'}"
+                            minlength="6"
+                        >
+                        <button type="button" class="password-toggle" aria-label="Toggle password visibility">
+                            👁️
+                        </button>
+                    </div>
+                </div>
+                
+                ${isLogin ? `
+                    <div class="form-group" style="text-align: right;">
+                        <a href="#" id="forgotPasswordLink" class="forgot-password-link">
+                            Forgot your password?
+                        </a>
+                    </div>
+                ` : ''}
+                
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary btn-block">
+                        ${isLogin ? 'Sign In' : 'Create Account'}
+                    </button>
+                </div>
+                
+                <div class="form-footer">
+                    ${isLogin ? "Don't have an account? " : "Already have an account? "}
+                    <a href="#" id="toggleAuthForm">
+                        ${isLogin ? 'Sign up here' : 'Sign in here'}
+                    </a>
+                </div>
+            </form>
+        </div>
     `;
 }
 
@@ -247,27 +285,35 @@ async function handleAuthFormSubmit(event) {
         return;
     }
     
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+        window.errorHandler?.showError('Please enter a valid email address');
+        return;
+    }
+    
     // Show loading state
     const submitBtn = form.querySelector('button[type="submit"]');
     const originalText = submitBtn.textContent;
-    submitBtn.textContent = isLogin ? 'Logging in...' : 'Creating account...';
+    submitBtn.textContent = isLogin ? 'Signing In...' : 'Creating Account...';
+    submitBtn.classList.add('btn-loading');
     submitBtn.disabled = true;
     
     try {
         if (isLogin) {
             // Login existing user
             await window.authModule.signIn(email, password);
-            window.errorHandler?.showSuccess('Login successful!');
+            window.errorHandler?.showSuccess('Welcome back! Login successful.');
             
         } else {
             // Sign up new user
             const additionalData = displayName ? { displayName } : {};
             await window.authModule.signUp(email, password, additionalData);
-            window.errorHandler?.showSuccess('Account created successfully!');
+            window.errorHandler?.showSuccess('🎉 Account created successfully! Welcome to Boutique Bliss.');
         }
         
         // Close modal after short delay
-        setTimeout(hideAuthModal, 1500);
+        setTimeout(hideAuthModal, 2000);
         
     } catch (error) {
         // Handle error
@@ -275,7 +321,46 @@ async function handleAuthFormSubmit(event) {
         
         // Reset button
         submitBtn.textContent = originalText;
+        submitBtn.classList.remove('btn-loading');
         submitBtn.disabled = false;
+    }
+}
+
+/**
+ * Handles Google Sign-in
+ */
+async function handleGoogleSignIn() {
+    const googleBtn = document.getElementById('googleSignInBtn');
+    if (!googleBtn) return;
+    
+    // Save original button state
+    const originalText = googleBtn.textContent;
+    googleBtn.textContent = 'Connecting to Google...';
+    googleBtn.disabled = true;
+    
+    try {
+        await window.authModule.signInWithGoogle();
+        window.errorHandler?.showSuccess('✅ Signed in with Google successfully!');
+        
+        // Close modal after short delay
+        setTimeout(hideAuthModal, 1500);
+        
+    } catch (error) {
+        // Handle Google sign-in errors
+        let errorMessage = error.message || 'Google sign-in failed';
+        
+        // Special handling for cancelled sign-in
+        if (error.message.includes('cancelled')) {
+            errorMessage = 'Sign-in was cancelled';
+        } else if (error.message.includes('popup blocked')) {
+            errorMessage = 'Popup blocked. Please allow popups for Google sign-in.';
+        }
+        
+        window.errorHandler?.showError(errorMessage);
+        
+        // Reset button
+        googleBtn.textContent = originalText;
+        googleBtn.disabled = false;
     }
 }
 
@@ -283,31 +368,148 @@ async function handleAuthFormSubmit(event) {
  * Handles logout button click
  */
 async function handleLogout() {
-    // Show confirmation (optional)
-    if (!confirm('Are you sure you want to logout?')) {
-        return;
-    }
+    // Show confirmation with style
+    const confirmLogout = await showConfirmDialog(
+        'Sign Out',
+        'Are you sure you want to sign out?',
+        'Sign Out',
+        'Cancel'
+    );
+    
+    if (!confirmLogout) return;
     
     try {
         // Show loading
         const logoutBtn = document.getElementById('logoutBtn');
         if (logoutBtn) {
             const originalText = logoutBtn.textContent;
-            logoutBtn.textContent = 'Logging out...';
+            logoutBtn.textContent = 'Signing Out...';
             logoutBtn.disabled = true;
         }
         
         await window.authModule.signOut();
+        window.errorHandler?.showSuccess('Signed out successfully. See you soon!');
         
         // Reset button
         if (logoutBtn) {
-            logoutBtn.textContent = originalText;
-            logoutBtn.disabled = false;
+            setTimeout(() => {
+                logoutBtn.textContent = originalText;
+                logoutBtn.disabled = false;
+            }, 1000);
         }
         
     } catch (error) {
         window.errorHandler?.handleFirebaseError(error, 'Logout');
     }
+}
+
+/**
+ * Shows a styled confirmation dialog
+ */
+function showConfirmDialog(title, message, confirmText, cancelText) {
+    return new Promise((resolve) => {
+        const dialogHTML = `
+            <div class="confirm-dialog-overlay" style="
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.5);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 9999;
+                backdrop-filter: blur(3px);
+            ">
+                <div class="confirm-dialog" style="
+                    background: white;
+                    padding: 2rem;
+                    border-radius: 1rem;
+                    max-width: 400px;
+                    width: 90%;
+                    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+                    animation: modalSlideIn 0.3s ease-out;
+                ">
+                    <h3 style="
+                        color: var(--color-primary-dark);
+                        margin-bottom: 1rem;
+                        font-size: 1.25rem;
+                    ">${title}</h3>
+                    <p style="
+                        color: var(--color-gray-dark);
+                        margin-bottom: 1.5rem;
+                        line-height: 1.5;
+                    ">${message}</p>
+                    <div style="
+                        display: flex;
+                        gap: 1rem;
+                        justify-content: flex-end;
+                    ">
+                        <button class="cancel-btn" style="
+                            padding: 0.75rem 1.5rem;
+                            border: 2px solid var(--border-color);
+                            border-radius: 0.75rem;
+                            background: transparent;
+                            color: var(--color-gray-dark);
+                            font-weight: 600;
+                            cursor: pointer;
+                            transition: all 0.2s ease;
+                        ">${cancelText}</button>
+                        <button class="confirm-btn" style="
+                            padding: 0.75rem 1.5rem;
+                            border: none;
+                            border-radius: 0.75rem;
+                            background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+                            color: white;
+                            font-weight: 600;
+                            cursor: pointer;
+                            transition: all 0.2s ease;
+                        ">${confirmText}</button>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        // Add CSS for animation
+        const style = document.createElement('style');
+        style.textContent = `
+            .confirm-dialog-overlay {
+                animation: fadeIn 0.2s ease-out;
+            }
+            @keyframes fadeIn {
+                from { opacity: 0; }
+                to { opacity: 1; }
+            }
+            .cancel-btn:hover {
+                background: var(--color-light) !important;
+            }
+            .confirm-btn:hover {
+                transform: translateY(-2px) !important;
+                box-shadow: 0 4px 12px var(--shadow-color) !important;
+            }
+        `;
+        
+        document.head.appendChild(style);
+        document.body.insertAdjacentHTML('beforeend', dialogHTML);
+        
+        // Add event listeners
+        const overlay = document.querySelector('.confirm-dialog-overlay');
+        const confirmBtn = overlay.querySelector('.confirm-btn');
+        const cancelBtn = overlay.querySelector('.cancel-btn');
+        
+        const cleanup = (result) => {
+            overlay.remove();
+            style.remove();
+            resolve(result);
+        };
+        
+        confirmBtn.addEventListener('click', () => cleanup(true));
+        cancelBtn.addEventListener('click', () => cleanup(false));
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) cleanup(false);
+        });
+    });
 }
 
 /**
@@ -337,7 +539,7 @@ async function handleForgotPassword(event) {
     
     try {
         await window.authModule.sendPasswordResetEmail(email);
-        window.errorHandler?.showSuccess(`Password reset email sent to ${email}. Please check your inbox.`);
+        window.errorHandler?.showSuccess(`📧 Password reset email sent to ${email}. Please check your inbox.`);
         
     } catch (error) {
         window.errorHandler?.handleFirebaseError(error, 'Password reset');
@@ -369,12 +571,17 @@ function updateAuthUI() {
         }
         
         if (userEmail) {
-            userEmail.textContent = user.email;
+            // Truncate long emails for display
+            const email = user.email;
+            const displayEmail = email.length > 25 ? email.substring(0, 22) + '...' : email;
+            userEmail.textContent = displayEmail;
+            userEmail.title = email; // Show full email on hover
         }
         
         if (authMessage) {
+            const displayName = user.displayName || user.email.split('@')[0];
             authMessage.innerHTML = `
-                <p>Welcome back, <strong>${user.email}</strong>! You're now logged in.</p>
+                <p>Welcome back, <strong>${displayName}</strong>! 👋</p>
                 <p>Explore the site or check back later for ecommerce features.</p>
             `;
         }
@@ -384,8 +591,14 @@ function updateAuthUI() {
         if (authButtons) {
             authButtons.classList.remove('hidden');
             authButtons.innerHTML = `
-                <button class="btn btn-login" id="headerLoginBtn">Login</button>
-                <button class="btn btn-signup" id="headerSignupBtn">Sign Up</button>
+                <button class="btn btn-login" id="headerLoginBtn">
+                    <span style="margin-right: 0.5rem;">🔐</span>
+                    Login
+                </button>
+                <button class="btn btn-signup" id="headerSignupBtn">
+                    <span style="margin-right: 0.5rem;">✨</span>
+                    Sign Up
+                </button>
             `;
             
             // Add event listeners to new buttons
@@ -407,8 +620,11 @@ function updateAuthUI() {
         
         if (authMessage) {
             authMessage.innerHTML = `
-                <p>Please sign in or create an account to get started.</p>
-                <p>Phase 1 focuses on authentication. Ecommerce features coming soon!</p>
+                <p>Welcome to Boutique Bliss! 💖</p>
+                <p>Sign in or create an account to get personalized recommendations.</p>
+                <p style="font-size: 0.9rem; color: var(--color-gray); margin-top: 0.5rem;">
+                    Phase 1: Authentication • Ecommerce features coming soon!
+                </p>
             `;
         }
     }
@@ -428,5 +644,6 @@ window.authUI = {
     showLoginModal: () => showAuthModal('login'),
     showSignupModal: () => showAuthModal('signup'),
     hideAuthModal: hideAuthModal,
-    updateAuthUI: updateAuthUI
+    updateAuthUI: updateAuthUI,
+    setupEventListeners: setupEventListeners
 };

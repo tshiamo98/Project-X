@@ -1,16 +1,10 @@
 /**
- * firebaseConfig.js - FIXED VERSION
+ * firebaseConfig.js - WITH GOOGLE AUTH
  * 
- * Firebase configuration and initialization.
- * This file isolates Firebase setup and exports initialized services.
- * 
- * IMPORTANT: Replace the placeholder config with your actual Firebase config.
- * Get this from Firebase Console > Project Settings > Your apps > Config
- * 
- * To modify: Update the firebaseConfig object with your project's credentials.
+ * Firebase configuration and initialization with Google Authentication.
  */
 
-// Firebase configuration - USE YOUR CONFIG HERE
+// Firebase configuration - USE YOUR CONFIG
 const firebaseConfig = {
     apiKey: "AIzaSyAReTKzhf1Q6AS_x4Zh7ofFwVNz0hAWAAY",
     authDomain: "project-x-9f235.firebaseapp.com",
@@ -84,6 +78,11 @@ function setupFirebaseServices(app) {
         const auth = firebase.auth();
         const db = firebase.firestore();
         
+        // Enable Google Auth provider
+        const googleProvider = new firebase.auth.GoogleAuthProvider();
+        googleProvider.addScope('email');
+        googleProvider.addScope('profile');
+        
         // Try to enable persistence (optional)
         try {
             db.enablePersistence()
@@ -99,13 +98,15 @@ function setupFirebaseServices(app) {
             app: app,
             auth: auth,
             db: db,
-            firebase: firebase
+            firebase: firebase,
+            googleProvider: googleProvider
         };
         
         window.firebaseReady = true;
         window.firebaseError = null;
         
         console.log("Firebase services set up successfully");
+        console.log("Google Authentication is enabled");
         
         // Dispatch custom event for other modules
         document.dispatchEvent(new CustomEvent('firebaseReady'));
@@ -148,15 +149,6 @@ function showFirebaseErrorUI(message) {
             </div>
         `;
     }
-    
-    // Also update hero message
-    const authMessage = document.getElementById('authMessage');
-    if (authMessage) {
-        authMessage.innerHTML = `
-            <p><strong>Firebase Error:</strong> ${message}</p>
-            <p>Check the browser console for detailed instructions.</p>
-        `;
-    }
 }
 
 /**
@@ -183,6 +175,14 @@ function getAuth() {
  */
 function getFirestore() {
     return window.firebaseServices ? window.firebaseServices.db : null;
+}
+
+/**
+ * Helper to get Google Auth provider
+ * @returns {Object|null} Google Auth provider or null
+ */
+function getGoogleProvider() {
+    return window.firebaseServices ? window.firebaseServices.googleProvider : null;
 }
 
 /**
@@ -225,7 +225,6 @@ function waitForFirebase() {
 }
 
 // Initialize Firebase when the script loads
-// But only if Firebase SDK is available
 (function init() {
     console.log("Loading Firebase configuration...");
     
@@ -257,10 +256,11 @@ window.firebaseUtils = {
     isInitialized: isFirebaseInitialized,
     getAuth: getAuth,
     getFirestore: getFirestore,
+    getGoogleProvider: getGoogleProvider,
     getApp: getFirebaseApp,
     waitForReady: waitForFirebase,
     config: firebaseConfig
 };
 
 // For debugging
-console.log("Firebase utilities module loaded");
+console.log("Firebase utilities module loaded with Google Auth support");

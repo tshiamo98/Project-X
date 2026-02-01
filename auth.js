@@ -1,13 +1,8 @@
 /**
- * auth.js
+ * auth.js - WITH GOOGLE SIGN-IN
  * 
  * Core authentication logic using Firebase Authentication.
- * Handles user sign up, login, logout, and session management.
- * 
- * This module is pure business logic - no UI manipulation.
- * UI updates are handled by uiAuth.js.
- * 
- * To modify: Add new authentication methods or change user data structure.
+ * Now includes Google Sign-in functionality.
  */
 
 // Wait for Firebase to initialize
@@ -36,7 +31,7 @@ function initAuth() {
     // Set up auth state listener
     auth.onAuthStateChanged(handleAuthStateChange);
     
-    console.log('Auth module initialized');
+    console.log('Auth module initialized with Google Sign-in support');
 }
 
 /**
@@ -44,9 +39,6 @@ function initAuth() {
  * @param {Object|null} user - Firebase user object or null if logged out
  */
 function handleAuthStateChange(user) {
-    // This function is called whenever auth state changes
-    // UI updates are handled by uiAuth.js via events
-    
     if (user) {
         // User is signed in
         console.log('User signed in:', user.email);
@@ -59,7 +51,7 @@ function handleAuthStateChange(user) {
             detail: { 
                 isLoggedIn: true, 
                 user: user,
-                userData: null // Will be populated by UI layer if needed
+                userData: null
             } 
         });
         document.dispatchEvent(event);
@@ -101,6 +93,7 @@ async function createUserDocument(user) {
             email: user.email,
             displayName: user.displayName || '',
             photoURL: user.photoURL || '',
+            provider: user.providerData?.[0]?.providerId || 'password',
             createdAt: userDoc.exists ? userDoc.data().createdAt : firebase.firestore.FieldValue.serverTimestamp(),
             lastLoginAt: firebase.firestore.FieldValue.serverTimestamp(),
             updatedAt: firebase.firestore.FieldValue.serverTimestamp()
@@ -155,7 +148,7 @@ async function signUp(email, password, additionalData = {}) {
         
     } catch (error) {
         console.error('Sign up error:', error);
-        throw error; // Re-throw for error handling
+        throw error;
     }
 }
 
@@ -181,7 +174,43 @@ async function signIn(email, password) {
         
     } catch (error) {
         console.error('Sign in error:', error);
-        throw error; // Re-throw for error handling
+        throw error;
+    }
+}
+
+/**
+ * Signs in with Google
+ * @returns {Promise<Object>} Promise resolving to user object
+ */
+async function signInWithGoogle() {
+    const auth = window.firebaseUtils.getAuth();
+    const googleProvider = window.firebaseUtils.getGoogleProvider();
+    
+    if (!auth || !googleProvider) {
+        throw new Error('Google Authentication not available');
+    }
+    
+    try {
+        // Sign in with popup
+        const result = await auth.signInWithPopup(googleProvider);
+        const user = result.user;
+        
+        console.log('User signed in with Google:', user.email);
+        return user;
+        
+    } catch (error) {
+        console.error('Google sign in error:', error);
+        
+        // Handle specific Google auth errors
+        if (error.code === 'auth/popup-closed-by-user') {
+            throw new Error('Sign-in was cancelled');
+        } else if (error.code === 'auth/popup-blocked') {
+            throw new Error('Popup was blocked by browser. Please allow popups for this site.');
+        } else if (error.code === 'auth/network-request-failed') {
+            throw new Error('Network error. Please check your internet connection.');
+        }
+        
+        throw error;
     }
 }
 
@@ -292,6 +321,7 @@ window.authModule = {
     // Core functions
     signUp: signUp,
     signIn: signIn,
+    signInWithGoogle: signInWithGoogle,
     signOut: signOut,
     
     // Utility functions
