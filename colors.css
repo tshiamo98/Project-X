@@ -1,0 +1,81 @@
+/**
+ * colors.css
+ * 
+ * Defines the color palette and theme variables for the feminine ecommerce site.
+ * All colors are centralized here for easy theming and consistency.
+ * 
+ * To modify the theme: Change the CSS custom property values below.
+ */
+
+:root {
+    /* Primary Colors - Feminine Pink & Purple Palette */
+    --color-primary: #ff66b2;        /* Vibrant pink */
+    --color-primary-light: #ff99cc;  /* Light pink */
+    --color-primary-dark: #e0559c;   /* Dark pink */
+    
+    /* Secondary Colors - Purple Spectrum */
+    --color-secondary: #b399ff;      /* Soft lavender */
+    --color-secondary-light: #d9ccff; /* Very light lavender */
+    --color-secondary-dark: #8a66cc;  /* Deep lavender */
+    
+    /* Accent Colors */
+    --color-accent: #ffcc00;         /* Warm gold/yellow */
+    --color-accent-light: #ffe680;   /* Light gold */
+    
+    /* Neutral Colors */
+    --color-white: #ffffff;
+    --color-light: #f9f7fd;          /* Very light purple tint */
+    --color-gray-light: #e6e1f2;     /* Light gray with purple tint */
+    --color-gray: #a6a1b8;           /* Medium gray */
+    --color-gray-dark: #6b667f;      /* Dark gray */
+    --color-black: #4a4659;          /* Soft black for text */
+    
+    /* Semantic Colors */
+    --color-success: #66cc99;        /* Mint green */
+    --color-error: #ff6666;          /* Soft red */
+    --color-warning: #ff9966;        /* Peach */
+    --color-info: #66b3ff;           /* Sky blue */
+    
+    /* Background Gradients */
+    --gradient-primary: linear-gradient(135deg, var(--color-primary-light), var(--color-secondary-light));
+    --gradient-dark: linear-gradient(135deg, var(--color-primary-dark), var(--color-secondary-dark));
+    --gradient-subtle: linear-gradient(135deg, var(--color-light), var(--color-white));
+    
+    /* Shadow Colors */
+    --shadow-color: rgba(255, 102, 178, 0.15); /* Pink tinted shadow */
+    --shadow-color-dark: rgba(179, 153, 255, 0.25); /* Purple tinted shadow */
+    
+    /* Border Colors */
+    --border-color: var(--color-gray-light);
+    --border-color-focus: var(--color-primary);
+    
+    /* Text Colors */
+    --text-color: var(--color-black);
+    --text-color-light: var(--color-gray-dark);
+    --text-color-inverse: var(--color-white);
+    
+    /* Link Colors */
+    --link-color: var(--color-primary-dark);
+    --link-color-hover: var(--color-secondary-dark);
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    :root {
+        --color-primary: #d6006e;
+        --color-secondary: #7a5ccc;
+        --text-color: #2a2639;
+        --border-color: #8a8599;
+    }
+}
+
+/* Dark mode support (optional future enhancement) */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --color-white: #1a1626;
+        --color-light: #252136;
+        --color-black: #f0eef8;
+        --color-gray-dark: #c9c4d9;
+        --border-color: #3d3851;
+    }
+}

@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Boutique Bliss | Feminine Ecommerce</title>
+    
+    <!-- Base styles -->
+    <link rel="stylesheet" href="colors.css">
+    <link rel="stylesheet" href="base.css">
+    <link rel="stylesheet" href="layout.css">
+    
+    <!-- Component styles -->
+    <link rel="stylesheet" href="header.css">
+    <link rel="stylesheet" href="buttons.css">
+    <link rel="stylesheet" href="auth.css">
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    
+    <!-- App scripts (defer for proper loading order) -->
+    <script src="firebaseConfig.js" defer></script>
+    <script src="auth.js" defer></script>
+    <script src="uiAuth.js" defer></script>
+    <script src="main.js" defer></script>
+</head>
+<body>
+    <!-- Header with Auth Controls -->
+    <header class="main-header" role="banner">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <h1>Boutique Bliss</h1>
+                    <p class="tagline">Feminine Finds & Delightful Designs</p>
+                </div>
+                
+                <!-- Auth Navigation -->
+                <nav class="auth-nav" aria-label="Authentication">
+                    <div class="auth-buttons" id="authButtons">
+                        <!-- Buttons will be dynamically inserted by JavaScript -->
+                        <span class="auth-loading">Loading authentication...</span>
+                    </div>
+                    
+                    <!-- User Info (hidden by default) -->
+                    <div class="user-info hidden" id="userInfo">
+                        <span class="user-email" id="userEmail"></span>
+                        <button class="btn btn-logout" id="logoutBtn">Logout</button>
+                    </div>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container" role="main">
+        <section class="hero">
+            <div class="hero-content">
+                <h2>Welcome to Boutique Bliss</h2>
+                <p class="hero-subtitle">Your destination for beautiful, feminine fashion and accessories</p>
+                
+                <!-- Dynamic greeting based on auth state -->
+                <div class="auth-message" id="authMessage">
+                    <p>Please sign in or create an account to get started.</p>
+                </div>
+                
+                <!-- Call to Action Buttons -->
+                <div class="cta-buttons">
+                    <button class="btn btn-primary" id="showLoginBtn">Login</button>
+                    <button class="btn btn-secondary" id="showSignupBtn">Sign Up</button>
+                </div>
+            </div>
+            
+            <!-- Colorful decorative elements -->
+            <div class="hero-decoration">
+                <div class="decoration-circle circle-1"></div>
+                <div class="decoration-circle circle-2"></div>
+                <div class="decoration-circle circle-3"></div>
+            </div>
+        </section>
+
+        <!-- Info Section -->
+        <section class="info-section">
+            <div class="info-card">
+                <div class="info-icon">🌸</div>
+                <h3>Feminine Style</h3>
+                <p>Curated collection of beautiful, feminine pieces</p>
+            </div>
+            <div class="info-card">
+                <div class="info-icon">💜</div>
+                <h3>Quality First</h3>
+                <p>Premium materials and careful craftsmanship</p>
+            </div>
+            <div class="info-card">
+                <div class="info-icon">✨</div>
+                <h3>Easy Shopping</h3>
+                <p>Simple, intuitive shopping experience</p>
+            </div>
+        </section>
+    </main>
+
+    <!-- Auth Modal (hidden by default) -->
+    <div class="modal-overlay hidden" id="authModal">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h2 id="modalTitle">Authentication</h2>
+                <button class="modal-close" id="closeModalBtn" aria-label="Close modal">×</button>
+            </div>
+            <div class="modal-content">
+                <!-- Auth form will be dynamically inserted here -->
+                <div id="authFormContainer"></div>
+                
+                <!-- Error display -->
+                <div class="error-message hidden" id="authError"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="main-footer" role="contentinfo">
+        <div class="container">
+            <p>© 2024 Boutique Bliss. All rights reserved.</p>
+            <p class="footer-note">Phase 1: Authentication System</p>
+        </div>
+    </footer>
+</body>
+</html>

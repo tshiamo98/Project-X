@@ -1,0 +1,157 @@
+/**
+ * header.css
+ * 
+ * Styles for the main header and navigation components.
+ * Includes logo, auth controls, and user info display.
+ * 
+ * To modify: Adjust header height, logo styles, or auth control layout.
+ */
+
+/* Main header container */
+.main-header {
+    background: var(--color-white);
+    box-shadow: 0 2px 10px var(--shadow-color);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    padding: 1rem 0;
+}
+
+/* Header content layout */
+.header-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+/* Logo styles */
+.logo {
+    text-align: center;
+}
+
+.logo h1 {
+    font-size: 2rem;
+    margin-bottom: 0.25rem;
+    background: var(--gradient-dark);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    letter-spacing: -0.5px;
+}
+
+.tagline {
+    font-size: 0.875rem;
+    color: var(--color-gray);
+    font-style: italic;
+    margin-bottom: 0;
+}
+
+/* Auth navigation */
+.auth-nav {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.auth-buttons {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.auth-loading {
+    color: var(--color-gray);
+    font-style: italic;
+}
+
+/* User info display */
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.user-email {
+    background: var(--color-light);
+    padding: 0.5rem 1rem;
+    border-radius: 2rem;
+    font-size: 0.875rem;
+    color: var(--color-secondary-dark);
+    border: 1px solid var(--color-secondary-light);
+}
+
+/* Call to action buttons in hero */
+.cta-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 2rem;
+}
+
+/* Auth message styling */
+.auth-message {
+    background: var(--color-light);
+    padding: 1rem;
+    border-radius: 0.5rem;
+    margin: 1.5rem 0;
+    border-left: 4px solid var(--color-primary);
+}
+
+.auth-message p {
+    margin-bottom: 0;
+    color: var(--color-gray-dark);
+}
+
+/* Responsive header adjustments */
+@media (min-width: 768px) {
+    .header-content {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .logo {
+        text-align: left;
+    }
+    
+    .auth-nav {
+        width: auto;
+        justify-content: flex-end;
+    }
+    
+    .user-info {
+        justify-content: flex-end;
+    }
+    
+    .cta-buttons {
+        justify-content: center;
+    }
+}
+
+/* Tablet adjustments */
+@media (max-width: 1024px) and (min-width: 769px) {
+    .logo h1 {
+        font-size: 1.75rem;
+    }
+}
+
+/* Animation for user info */
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.user-info:not(.hidden) {
+    animation: slideIn 0.3s ease;
+}

@@ -1,0 +1,31 @@
+
+## Setup Instructions
+
+### 1. Firebase Configuration
+
+1. Create a Firebase project at [firebase.google.com](https://firebase.google.com)
+2. Enable Authentication:
+   - Go to Authentication > Sign-in method
+   - Enable Email/Password provider
+3. Enable Firestore Database:
+   - Go to Firestore Database
+   - Create database in test mode (for development)
+4. Get your Firebase config:
+   - Go to Project Settings > General
+   - Scroll to "Your apps" section
+   - Click on web app (or create one)
+   - Copy the config object
+
+### 2. Update Firebase Config
+
+Edit `js/firebaseConfig.js` and replace the placeholder config with your actual Firebase config:
+
+```javascript
+const firebaseConfig = {
+    apiKey: "YOUR_API_KEY_HERE",
+    authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+    projectId: "YOUR_PROJECT_ID",
+    storageBucket: "YOUR_PROJECT_ID.appspot.com",
+    messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+    appId: "YOUR_APP_ID"
+};

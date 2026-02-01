@@ -1,0 +1,22 @@
+ecommerce-project/
+├── index.html
+├── css/
+│   ├── base.css
+│   ├── layout.css
+│   ├── buttons.css
+│   ├── auth.css
+│   ├── colors.css
+│   └── components/
+│       ├── header.css
+│       └── forms.css
+├── js/
+│   ├── firebaseConfig.js
+│   ├── auth.js
+│   ├── uiAuth.js
+│   ├── main.js
+│   └── utils/
+│       └── errorHandler.js
+├── pages/
+│   ├── dashboard.html
+│   └── auth.html
+└── README.md

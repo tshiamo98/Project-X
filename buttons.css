@@ -1,0 +1,223 @@
+/**
+ * buttons.css
+ * 
+ * Defines all button styles and variants used throughout the application.
+ * Centralizes button styling for consistency and easy theming.
+ * 
+ * To modify: Adjust button colors, sizes, or add new variants.
+ */
+
+/* Base button styles */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.75rem 1.5rem;
+    border-radius: 2rem;
+    font-weight: 600;
+    font-size: 1rem;
+    text-align: center;
+    transition: all 0.2s ease;
+    border: 2px solid transparent;
+    cursor: pointer;
+    text-decoration: none;
+    white-space: nowrap;
+    gap: 0.5rem;
+    min-height: 44px; /* Touch-friendly minimum size */
+}
+
+.btn:focus {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+}
+
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none !important;
+}
+
+/* Primary button (pink) */
+.btn-primary {
+    background: var(--gradient-dark);
+    color: var(--color-white);
+    border-color: var(--color-primary-dark);
+}
+
+.btn-primary:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px var(--shadow-color-dark);
+}
+
+.btn-primary:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+/* Secondary button (purple outline) */
+.btn-secondary {
+    background: transparent;
+    color: var(--color-secondary-dark);
+    border-color: var(--color-secondary);
+}
+
+.btn-secondary:hover:not(:disabled) {
+    background: var(--color-secondary-light);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px var(--shadow-color);
+}
+
+/* Login button (pink outline) */
+.btn-login {
+    background: transparent;
+    color: var(--color-primary-dark);
+    border-color: var(--color-primary);
+}
+
+.btn-login:hover:not(:disabled) {
+    background: var(--color-primary-light);
+    color: var(--color-white);
+}
+
+/* Signup button (purple gradient) */
+.btn-signup {
+    background: linear-gradient(135deg, var(--color-secondary), var(--color-secondary-dark));
+    color: var(--color-white);
+    border: none;
+}
+
+.btn-signup:hover:not(:disabled) {
+    background: linear-gradient(135deg, var(--color-secondary-dark), var(--color-secondary));
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px var(--shadow-color-dark);
+}
+
+/* Logout button (minimal) */
+.btn-logout {
+    background: var(--color-light);
+    color: var(--color-error);
+    border-color: var(--color-error);
+    font-size: 0.875rem;
+    padding: 0.5rem 1rem;
+}
+
+.btn-logout:hover:not(:disabled) {
+    background: var(--color-error);
+    color: var(--color-white);
+}
+
+/* Success button (green) */
+.btn-success {
+    background: var(--color-success);
+    color: var(--color-white);
+    border-color: var(--color-success);
+}
+
+.btn-success:hover:not(:disabled) {
+    background: var(--color-white);
+    color: var(--color-success);
+}
+
+/* Danger button (red) */
+.btn-danger {
+    background: var(--color-error);
+    color: var(--color-white);
+    border-color: var(--color-error);
+}
+
+.btn-danger:hover:not(:disabled) {
+    background: var(--color-white);
+    color: var(--color-error);
+}
+
+/* Warning button (orange) */
+.btn-warning {
+    background: var(--color-warning);
+    color: var(--color-white);
+    border-color: var(--color-warning);
+}
+
+/* Small button variant */
+.btn-sm {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    min-height: 36px;
+}
+
+/* Large button variant */
+.btn-lg {
+    padding: 1rem 2rem;
+    font-size: 1.125rem;
+    min-height: 52px;
+}
+
+/* Full width button */
+.btn-block {
+    width: 100%;
+    display: flex;
+}
+
+/* Button with icon */
+.btn-icon {
+    padding: 0.5rem;
+    min-height: auto;
+    aspect-ratio: 1;
+}
+
+/* Button group */
+.btn-group {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.btn-group .btn {
+    flex: 1;
+}
+
+/* Loading state */
+.btn-loading {
+    position: relative;
+    color: transparent !important;
+}
+
+.btn-loading::after {
+    content: '';
+    position: absolute;
+    width: 1rem;
+    height: 1rem;
+    border: 2px solid currentColor;
+    border-radius: 50%;
+    border-right-color: transparent;
+    animation: button-spin 0.75s linear infinite;
+}
+
+@keyframes button-spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Responsive button adjustments */
+@media (max-width: 768px) {
+    .btn {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .btn-group {
+        flex-direction: column;
+    }
+    
+    .btn:not(.btn-block) {
+        max-width: 300px;
+    }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+    .btn {
+        border-width: 3px;
+    }
+}
