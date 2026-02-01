@@ -1,22 +1,31 @@
 ecommerce-project/
-├── index.html
+├── index.html (updated)
 ├── css/
 │   ├── base.css
 │   ├── layout.css
 │   ├── buttons.css
 │   ├── auth.css
 │   ├── colors.css
+│   ├── header.css
+│   ├── forms.css
+│   ├── products.css (NEW)
+│   ├── cart.css (NEW)
 │   └── components/
-│       ├── header.css
-│       └── forms.css
+│       └── product-card.css (NEW)
 ├── js/
 │   ├── firebaseConfig.js
 │   ├── auth.js
 │   ├── uiAuth.js
 │   ├── main.js
+│   ├── products.js (NEW)
+│   ├── cart.js (NEW)
+│   ├── favorites.js (NEW)
+│   ├── uiProducts.js (NEW)
 │   └── utils/
-│       └── errorHandler.js
+│       ├── errorHandler.js
+│       └── helpers.js (NEW)
 ├── pages/
-│   ├── dashboard.html
-│   └── auth.html
+│   ├── products.html (NEW)
+│   ├── cart.html (NEW)
+│   └── favorites.html (NEW)
 └── README.md
