@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Catalog | Boutique Bliss</title>
+    
+    <!-- Core Styles -->
+    <link rel="stylesheet" href="colors.css">
+    <link rel="stylesheet" href="base.css">
+    <link rel="stylesheet" href="layout.css">
+    <link rel="stylesheet" href="buttons.css">
+    
+    <!-- Component Styles -->
+    <link rel="stylesheet" href="header.css">
+    <link rel="stylesheet" href="forms.css">
+    <link rel="stylesheet" href="products.css">
+    <link rel="stylesheet" href="product-card.css">
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+    <!-- Header with Navigation -->
+    <header class="main-header" role="banner">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <h1><a href="../index.html" style="text-decoration: none; color: inherit;">Boutique Bliss</a></h1>
+                    <p class="tagline">Feminine Finds & Delightful Designs</p>
+                </div>
+                
+                <!-- Main Navigation -->
+                <nav class="main-nav" aria-label="Main navigation">
+                    <ul class="nav-list" style="display: flex; gap: 2rem; align-items: center;">
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="products.html" class="active">Products</a></li>
+                        <li><a href="cart.html" class="cart-link">
+                            🛒 Cart <span id="cartCount" class="count-badge" style="display: none;">0</span>
+                        </a></li>
+                        <li><a href="favorites.html" class="favorites-link">
+                            ❤️ Favorites <span id="favoritesCount" class="count-badge" style="display: none;">0</span>
+                        </a></li>
+                    </ul>
+                </nav>
+                
+                <!-- Auth Navigation -->
+                <nav class="auth-nav" aria-label="Authentication">
+                    <div class="auth-buttons" id="authButtons">
+                        <span class="auth-loading">Loading...</span>
+                    </div>
+                    <div class="user-info hidden" id="userInfo">
+                        <span class="user-email" id="userEmail"></span>
+                        <button class="btn btn-logout" id="logoutBtn">Logout</button>
+                    </div>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container" role="main">
+        <!-- Catalog Header -->
+        <section class="catalog-header">
+            <h1>Our Collection</h1>
+            <p class="catalog-subtitle">
+                Discover beautiful, feminine pieces curated just for you. 
+                From dresses to accessories, find your perfect style.
+            </p>
+        </section>
+
+        <!-- Category Filters -->
+        <div class="category-filters" id="categoryFilters">
+            <!-- Categories will be populated by JavaScript -->
+        </div>
+
+        <!-- Catalog Controls -->
+        <div class="catalog-controls">
+            <div class="catalog-stats" id="catalogStats">
+                Loading products...
+            </div>
+            
+            <div class="catalog-filters">
+                <select id="sortSelect" class="filter-select">
+                    <option value="featured">Featured</option>
+                    <option value="price-low">Price: Low to High</option>
+                    <option value="price-high">Price: High to Low</option>
+                    <option value="name-asc">Name: A to Z</option>
+                    <option value="name-desc">Name: Z to A</option>
+                    <option value="rating">Highest Rated</option>
+                    <option value="newest">Newest</option>
+                </select>
+                
+                <select id="itemsPerPage" class="filter-select">
+                    <option value="6">6 per page</option>
+                    <option value="9" selected>9 per page</option>
+                    <option value="12">12 per page</option>
+                    <option value="24">24 per page</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Products Grid -->
+        <div class="products-grid" id="productsGrid">
+            <!-- Products will be populated by JavaScript -->
+            <div class="products-loading">
+                <div class="loading-spinner"></div>
+                <p>Loading products...</p>
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination" id="pagination">
+            <!-- Pagination will be populated by JavaScript -->
+        </div>
+
+        <!-- Featured Categories -->
+        <section class="featured-categories" style="margin-top: 4rem; padding-top: 3rem; border-top: 2px solid var(--border-color);">
+            <h2 style="text-align: center; margin-bottom: 2rem;">Shop by Category</h2>
+            <div class="categories-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem;">
+                <a href="products.html?category=dresses" class="category-card" style="
+                    background: linear-gradient(135deg, var(--color-primary-light), var(--color-secondary-light));
+                    padding: 2rem;
+                    border-radius: 1rem;
+                    text-align: center;
+                    text-decoration: none;
+                    color: var(--color-black);
+                    transition: transform 0.3s ease;
+                ">
+                    <div style="font-size: 2.5rem; margin-bottom: 1rem;">👗</div>
+                    <h3 style="margin-bottom: 0.5rem;">Dresses</h3>
+                    <p style="color: var(--color-gray); font-size: 0.9rem;">Beautiful dresses for every occasion</p>
+                </a>
+                
+                <a href="products.html?category=jewelry" class="category-card" style="
+                    background: linear-gradient(135deg, #fff0f5, #f5f0ff);
+                    padding: 2rem;
+                    border-radius: 1rem;
+                    text-align: center;
+                    text-decoration: none;
+                    color: var(--color-black);
+                    transition: transform 0.3s ease;
+                ">
+                    <div style="font-size: 2.5rem; margin-bottom: 1rem;">💎</div>
+                    <h3 style="margin-bottom: 0.5rem;">Jewelry</h3>
+                    <p style="color: var(--color-gray); font-size: 0.9rem;">Elegant pieces to complement your style</p>
+                </a>
+                
+                <a href="products.html?category=bags" class="category-card" style="
+                    background: linear-gradient(135deg, #f0f8ff, #f8f0ff);
+                    padding: 2rem;
+                    border-radius: 1rem;
+                    text-align: center;
+                    text-decoration: none;
+                    color: var(--color-black);
+                    transition: transform 0.3s ease;
+                ">
+                    <div style="font-size: 2.5rem; margin-bottom: 1rem;">👜</div>
+                    <h3 style="margin-bottom: 0.5rem;">Bags</h3>
+                    <p style="color: var(--color-gray); font-size: 0.9rem;">Stylish bags for every outing</p>
+                </a>
+                
+                <a href="products.html?category=accessories" class="category-card" style="
+                    background: linear-gradient(135deg, #fffaf0, #f0fff5);
+                    padding: 2rem;
+                    border-radius: 1rem;
+                    text-align: center;
+                    text-decoration: none;
+                    color: var(--color-black);
+                    transition: transform 0.3s ease;
+                ">
+                    <div style="font-size: 2.5rem; margin-bottom: 1rem;">🧣</div>
+                    <h3 style="margin-bottom: 0.5rem;">Accessories</h3>
+                    <p style="color: var(--color-gray); font-size: 0.9rem;">Complete your look with accessories</p>
+                </a>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="main-footer" role="contentinfo">
+        <div class="container">
+            <p>© 2024 Boutique Bliss. All rights reserved.</p>
+            <p class="footer-note">Phase 2: Product Catalog & Shopping Experience</p>
+            <div style="margin-top: 1rem; display: flex; gap: 1.5rem; justify-content: center;">
+                <a href="index.html" style="color: var(--color-white);">Home</a>
+                <a href="products.html" style="color: var(--color-white);">Products</a>
+                <a href="cart.html" style="color: var(--color-white);">Cart</a>
+                <a href="favorites.html" style="color: var(--color-white);">Favorites</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Auth Modal (hidden by default) -->
+    <div class="modal-overlay hidden" id="authModal">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h2 id="modalTitle">Authentication</h2>
+                <button class="modal-close" id="closeModalBtn" aria-label="Close modal">×</button>
+            </div>
+            <div class="modal-content">
+                <div id="authFormContainer"></div>
+                <div class="error-message hidden" id="authError"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick View Modal Container -->
+    <div id="quickViewModal" class="hidden"></div>
+
+    <!-- App Scripts -->
+    <script src="firebaseConfig.js"></script>
+    <script src="errorHandler.js"></script>
+    <script src="helpers.js"></script>
+    <script src="auth.js"></script>
+    <script src="uiAuth.js"></script>
+    <script src="products.js"></script>
+    <script src="uiProducts.js"></script>
+    <script src="main.js"></script>
+
+    <script>
+        // Initialize categories on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            // Load categories
+            const categories = window.productModule?.getCategories();
+            const categoryFilters = document.getElementById('categoryFilters');
+            
+            if (categories && categoryFilters) {
+                categoryFilters.innerHTML = categories.map(category => `
+                    <button class="category-filter ${category.id === 'all' ? 'active' : ''}" 
+                            data-category="${category.id}">
+                        ${category.name}
+                        <span class="category-count">${category.count}</span>
+                    </button>
+                `).join('');
+            }
+            
+            // Parse URL parameters
+            const params = window.helpers?.parseQueryParams();
+            if (params.category) {
+                // Set initial category from URL
+                const categoryFilter = document.querySelector(`.category-filter[data-category="${params.category}"]`);
+                if (categoryFilter) {
+                    categoryFilter.click();
+                }
+            }
+            
+            // Initialize cart and favorites counts
+            updateCartAndFavoritesCounts();
+        });
+        
+        // Update cart and favorites counts
+        function updateCartAndFavoritesCounts() {
+            const cartTotal = window.productModule?.getCartTotal();
+            const favorites = window.productModule?.state.favorites || [];
+            
+            if (cartTotal) {
+                const cartCount = document.getElementById('cartCount');
+                if (cartCount) {
+                    cartCount.textContent = cartTotal.itemCount;
+                    cartCount.style.display = cartTotal.itemCount > 0 ? 'inline-block' : 'none';
+                }
+            }
+            
+            const favCount = document.getElementById('favoritesCount');
+            if (favCount) {
+                favCount.textContent = favorites.length;
+                favCount.style.display = favorites.length > 0 ? 'inline-block' : 'none';
+            }
+        }
+        
+        // Listen for cart and favorites updates
+        document.addEventListener('cartUpdated', updateCartAndFavoritesCounts);
+        document.addEventListener('favoritesUpdated', updateCartAndFavoritesCounts);
+    </script>
+</body>
+</html>

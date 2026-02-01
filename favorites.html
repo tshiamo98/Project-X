@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Favorites | Boutique Bliss</title>
+    
+    <!-- Core Styles -->
+    <link rel="stylesheet" href="colors.css">
+    <link rel="stylesheet" href="base.css">
+    <link rel="stylesheet" href="layout.css">
+    <link rel="stylesheet" href="buttons.css">
+    
+    <!-- Component Styles -->
+    <link rel="stylesheet" href="header.css">
+    <link rel="stylesheet" href="forms.css">
+    <link rel="stylesheet" href="cart.css">
+    <link rel="stylesheet" href="products.css">
+    <link rel="stylesheet" href="product-card.css">
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+    <!-- Header with Navigation -->
+    <header class="main-header" role="banner">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <h1><a href="../index.html" style="text-decoration: none; color: inherit;">Boutique Bliss</a></h1>
+                    <p class="tagline">Feminine Finds & Delightful Designs</p>
+                </div>
+                
+                <!-- Main Navigation -->
+                <nav class="main-nav" aria-label="Main navigation">
+                    <ul class="nav-list" style="display: flex; gap: 2rem; align-items: center;">
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="products.html">Products</a></li>
+                        <li><a href="cart.html">
+                            🛒 Cart <span id="cartCount" class="count-badge" style="display: none;">0</span>
+                        </a></li>
+                        <li><a href="favorites.html" class="active">
+                            ❤️ Favorites <span id="favoritesCount" class="count-badge" style="display: none;">0</span>
+                        </a></li>
+                    </ul>
+                </nav>
+                
+                <!-- Auth Navigation -->
+                <nav class="auth-nav" aria-label="Authentication">
+                    <div class="auth-buttons" id="authButtons">
+                        <span class="auth-loading">Loading...</span>
+                    </div>
+                    <div class="user-info hidden" id="userInfo">
+                        <span class="user-email" id="userEmail"></span>
+                        <button class="btn btn-logout" id="logoutBtn">Logout</button>
+                    </div>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container" role="main">
+        <!-- Page Header -->
+        <section class="page-header">
+            <h1>My Favorites</h1>
+            <p class="page-subtitle">
+                Save items you love and shop them later
+            </p>
+        </section>
+
+        <!-- Favorites Tabs -->
+        <div class="list-tabs">
+            <button class="list-tab" data-tab="cart">
+                🛒 Shopping Cart
+                <span id="cartTabCount" class="list-tab-count">0</span>
+            </button>
+            <button class="list-tab active" data-tab="favorites">
+                ❤️ Favorites
+                <span id="favoritesTabCount" class="list-tab-count">0</span>
+            </button>
+        </div>
+
+        <!-- Lists Container -->
+        <div class="lists-container">
+            <!-- Favorites List -->
+            <div class="list-items" id="favoritesItems">
+                <!-- Empty State (Logged Out) -->
+                <div class="empty-state hidden" id="loginRequiredState">
+                    <div class="empty-state-icon">🔐</div>
+                    <h3>Sign in to save favorites</h3>
+                    <p>Create an account or sign in to save items you love</p>
+                    <div style="display: flex; gap: 1rem; justify-content: center; margin-top: 1.5rem;">
+                        <button class="btn btn-primary" onclick="window.authUI?.showLoginModal()">
+                            Sign In
+                        </button>
+                        <button class="btn btn-secondary" onclick="window.authUI?.showSignupModal()">
+                            Create Account
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Empty State (Logged In, No Favorites) -->
+                <div class="empty-state" id="favoritesEmptyState">
+                    <div class="empty-state-icon">❤️</div>
+                    <h3>No favorites yet</h3>
+                    <p>Start adding items you love by clicking the heart icon</p>
+                    <a href="products.html" class="btn btn-primary" style="margin-top: 1.5rem;">
+                        Browse Products
+                    </a>
+                </div>
+                
+                <!-- Favorites Grid -->
+                <div id="favoritesGrid" class="hidden" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 2rem;">
+                    <!-- Favorites will be populated by JavaScript -->
+                </div>
+            </div>
+
+            <!-- Favorites Summary -->
+            <div class="list-summary">
+                <div class="summary-section">
+                    <h3>Favorites Info</h3>
+                    
+                    <div class="summary-item">
+                        <span class="summary-label">Items Saved</span>
+                        <span class="summary-value" id="favoritesCountValue">0</span>
+                    </div>
+                    
+                    <div class="summary-item">
+                        <span class="summary-label">In Stock</span>
+                        <span class="summary-value" id="inStockCount">0</span>
+                    </div>
+                    
+                    <div class="summary-item">
+                        <span class="summary-label">On Sale</span>
+                        <span class="summary-value" id="onSaleCount">0</span>
+                    </div>
+                </div>
+                
+                <!-- Quick Actions -->
+                <div class="summary-section">
+                    <h3>Quick Actions</h3>
+                    <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                        <button class="btn btn-secondary" id="addAllToCartBtn" style="width: 100%;">
+                            🛒 Add All to Cart
+                        </button>
+                        <button class="btn btn-secondary" id="clearFavoritesBtn" style="width: 100%;">
+                            🗑️ Clear All Favorites
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Benefits -->
+                <div class="summary-section">
+                    <h3>Benefits</h3>
+                    <div style="display: flex; flex-direction: column; gap: 1rem;">
+                        <div style="display: flex; align-items: center; gap: 0.75rem;">
+                            <span style="font-size: 1.25rem;">🔔</span>
+                            <div>
+                                <div style="font-weight: 600; font-size: 0.9rem;">Price Drop Alerts</div>
+                                <div style="font-size: 0.85rem; color: var(--color-gray);">
+                                    Get notified when prices drop
+                                </div>
+                            </div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 0.75rem;">
+                            <span style="font-size: 1.25rem;">🛍️</span>
+                            <div>
+                                <div style="font-weight: 600; font-size: 0.9rem;">Quick Add to Cart</div>
+                                <div style="font-size: 0.85rem; color: var(--color-gray);">
+                                    Add multiple items at once
+                                </div>
+                            </div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 0.75rem;">
+                            <span style="font-size: 1.25rem;">📱</span>
+                            <div>
+                                <div style="font-weight: 600; font-size: 0.9rem;">Sync Across Devices</div>
+                                <div style="font-size: 0.85rem; color: var(--color-gray);">
+                                    Access favorites anywhere
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Share -->
+                <div class="summary-section">
+                    <h3>Share Your Style</h3>
+                    <p style="color: var(--color-gray); font-size: 0.9rem; margin-bottom: 1rem;">
+                        Create a wishlist to share with friends and family
+                    </p>
+                    <button class="btn btn-primary" id="createWishlistBtn" style="width: 100%;">
+                        ✨ Create Wishlist
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Related Products -->
+        <section class="related-products" style="margin-top: 3rem; padding-top: 3rem; border-top: 2px solid var(--border-color);">
+            <h2 style="text-align: center; margin-bottom: 2rem;">You Might Also Like</h2>
+            <div class="products-grid" id="relatedProducts">
+                <!-- Related products will be populated by JavaScript -->
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="main-footer" role="contentinfo">
+        <div class="container">
+            <p>© 2024 Boutique Bliss. All rights reserved.</p>
+            <p class="footer-note">Phase 2: Product Catalog & Shopping Experience</p>
+            <div style="margin-top: 1rem; display: flex; gap: 1.5rem; justify-content: center;">
+                <a href="index.html" style="color: var(--color-white);">Home</a>
+                <a href="products.html" style="color: var(--color-white);">Products</a>
+                <a href="cart.html" style="color: var(--color-white);">Cart</a>
+                <a href="favorites.html" style="color: var(--color-white);">Favorites</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Auth Modal (hidden by default) -->
+    <div class="modal-overlay hidden" id="authModal">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h2 id="modalTitle">Authentication</h2>
+                <button class="modal-close" id="closeModalBtn" aria-label="Close modal">×</button>
+            </div>
+            <div class="modal-content">
+                <div id="authFormContainer"></div>
+                <div class="error-message hidden" id="authError"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick View Modal Container -->
+    <div id="quickViewModal" class="hidden"></div>
+
+    <!-- Wishlist Modal Container -->
+    <div id="wishlistModal" class="hidden"></div>
+
+    <!-- App Scripts -->
+    <script src="firebaseConfig.js"></script>
+    <script src="errorHandler.js"></script>
+    <script src="helpers.js"></script>
+    <script src="auth.js"></script>
+    <script src="uiAuth.js"></script>
+    <script src="products.js"></script>
+    <script src="uiProducts.js"></script>
+    <script src="cart.js"></script>
+    <script src="main.js"></script>
+
+    <script>
+        // Favorites page specific functionality
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeFavoritesPage();
+        });
+        
+        function initializeFavoritesPage() {
+            // Update tab counts
+            updateTabCounts();
+            
+            // Listen for updates
+            document.addEventListener('cartUpdated', updateTabCounts);
+            document.addEventListener('favoritesUpdated', handleFavoritesUpdated);
+            
+            // Initialize based on auth state
+            updateFavoritesDisplay();
+            
+            // Set up event listeners
+            setupFavoritesListeners();
+            
+            // Load related products
+            loadRelatedProducts();
+        }
+        
+        function updateTabCounts() {
+            const cartTotal = window.productModule?.getCartTotal();
+            const favorites = window.productModule?.state.favorites || [];
+            
+            // Update cart tab count
+            const cartTabCount = document.getElementById('cartTabCount');
+            if (cartTabCount && cartTotal) {
+                cartTabCount.textContent = cartTotal.itemCount;
+            }
+            
+            // Update favorites tab count
+            const favTabCount = document.getElementById('favoritesTabCount');
+            if (favTabCount) {
+                favTabCount.textContent = favorites.length;
+            }
+            
+            // Update header counts
+            const cartCount = document.getElementById('cartCount');
+            if (cartCount && cartTotal) {
+                cartCount.textContent = cartTotal.itemCount;
+                cartCount.style.display = cartTotal.itemCount > 0 ? 'inline-block' : 'none';
+            }
+            
+            const favCount = document.getElementById('favoritesCount');
+            if (favCount) {
+                favCount.textContent = favorites.length;
+                favCount.style.display = favorites.length > 0 ? 'inline-block' : 'none';
+            }
+        }
+        
+        function updateFavoritesDisplay() {
+            const user = window.authModule?.getCurrentUser();
+            const favorites = window.productModule?.getFavoriteProducts() || [];
+            
+            const loginRequiredState = document.getElementById('loginRequiredState');
+            const favoritesEmptyState = document.getElementById('favoritesEmptyState');
+            const favoritesGrid = document.getElementById('favoritesGrid');
+            
+            if (!user) {
+                // User not logged in
+                if (loginRequiredState) loginRequiredState.classList.remove('hidden');
+                if (favoritesEmptyState) favoritesEmptyState.classList.add('hidden');
+                if (favoritesGrid) favoritesGrid.classList.add('hidden');
+                return;
+            }
+            
+            // User is logged in
+            if (loginRequiredState) loginRequiredState.classList.add('hidden');
+            
+            if (favorites.length === 0) {
+                // No favorites
+                if (favoritesEmptyState) favoritesEmptyState.classList.remove('hidden');
+                if (favoritesGrid) favoritesGrid.classList.add('hidden');
+                updateFavoritesSummary(0, 0, 0);
+            } else {
+                // Has favorites
+                if (favoritesEmptyState) favoritesEmptyState.classList.add('hidden');
+                if (favoritesGrid) {
+                    favoritesGrid.classList.remove('hidden');
+                    favoritesGrid.innerHTML = favorites.map(product => generateFavoriteCardHTML(product)).join('');
+                }
+                updateFavoritesSummary(favorites);
+            }
+        }
+        
+        function generateFavoriteCardHTML(product) {
+            const isFavorite = window.productModule.isFavorite(product.id);
+            const discountPercent = product.originalPrice ? 
+                Math.round((1 - product.price / product.originalPrice) * 100) : 0;
+            
+            return `
+                <div class="product-card" data-product-id="${product.id}">
+                    <div class="product-image-container">
+                        <img src="${product.images[0]}" 
+                             alt="${product.name}" 
+                             class="product-main-image">
+                        
+                        <div class="product-quick-actions">
+                            <button class="quick-action-btn favorite-btn ${isFavorite ? 'active' : ''}"
+                                    data-product-id="${product.id}"
+                                    title="${isFavorite ? 'Remove from favorites' : 'Add to favorites'}">
+                                ${isFavorite ? '❤️' : '🤍'}
+                            </button>
+                            <button class="quick-action-btn cart-btn"
+                                    data-product-id="${product.id}"
+                                    title="Add to cart">
+                                🛒
+                            </button>
+                            <button class="quick-action-btn view-btn"
+                                    data-product-id="${product.id}"
+                                    title="Quick view">
+                                👁️
+                            </button>
+                        </div>
+                        
+                        <div class="product-badges">
+                            ${product.tags.includes('new') ? `
+                                <span class="product-badge badge-new">New</span>
+                            ` : ''}
+                            ${product.tags.includes('sale') ? `
+                                <span class="product-badge badge-sale">Sale ${discountPercent}%</span>
+                            ` : ''}
+                            ${product.tags.includes('popular') ? `
+                                <span class="product-badge badge-popular">Popular</span>
+                            ` : ''}
+                        </div>
+                    </div>
+                    
+                    <div class="product-content">
+                        <span class="product-category">${product.category}</span>
+                        <h3 class="product-title">
+                            <a href="#" data-product-id="${product.id}" class="view-details-link">
+                                ${product.name}
+                            </a>
+                        </h3>
+                        
+                        <p class="product-description">${product.description}</p>
+                        
+                        <div class="product-price">
+                            <span class="current-price">$${product.price.toFixed(2)}</span>
+                            ${product.originalPrice ? `
+                                <span class="original-price">$${product.originalPrice.toFixed(2)}</span>
+                            ` : ''}
+                        </div>
+                        
+                        <div class="product-stock">
+                            <span class="stock-indicator ${product.stock > 10 ? 'stock-in' : product.stock > 0 ? 'stock-low' : 'stock-out'}"></span>
+                            <span class="stock-text">
+                                ${product.stock > 10 ? 'In Stock' : product.stock > 0 ? `Only ${product.stock} left` : 'Out of Stock'}
+                            </span>
+                        </div>
+                        
+                        <div class="product-actions">
+                            <button class="action-btn add-to-cart-btn"
+                                    data-product-id="${product.id}"
+                                    ${product.stock === 0 ? 'disabled' : ''}>
+                                <span>🛒</span>
+                                ${product.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
+                            </button>
+                            <button class="action-btn view-details-btn"
+                                    data-product-id="${product.id}">
+                                <span>👁️</span>
+                                Quick View
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function updateFavoritesSummary(favorites) {
+            if (!favorites || favorites.length === 0) {
+                document.getElementById('favoritesCountValue').textContent = '0';
+                document.getElementById('inStockCount').textContent = '0';
+                document.getElementById('onSaleCount').textContent = '0';
+                return;
+            }
+            
+            const inStockCount = favorites.filter(p => p.stock > 0).length;
+            const onSaleCount = favorites.filter(p => p.originalPrice && p.price < p.originalPrice).length;
+            
+            document.getElementById('favoritesCountValue').textContent = favorites.length;
+            document.getElementById('inStockCount').textContent = inStockCount;
+            document.getElementById('onSaleCount').textContent = onSaleCount;
+        }
+        
+        function setupFavoritesListeners() {
+            // Add all to cart button
+            const addAllBtn = document.getElementById('addAllToCartBtn');
+            if (addAllBtn) {
+                addAllBtn.addEventListener('click', handleAddAllToCart);
+            }
+            
+            // Clear favorites button
+            const clearBtn = document.getElementById('clearFavoritesBtn');
+            if (clearBtn) {
+                clearBtn.addEventListener('click', handleClearFavorites);
+            }
+            
+            // Create wishlist button
+            const wishlistBtn = document.getElementById('createWishlistBtn');
+            if (wishlistBtn) {
+                wishlistBtn.addEventListener('click', handleCreateWishlist);
+            }
+            
+            // Tab switching
+            document.querySelectorAll('.list-tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const tabType = tab.dataset.tab;
+                    if (tabType === 'cart') {
+                        window.location.href = 'cart.html';
+                    }
+                });
+            });
+        }
+        
+        function handleAddAllToCart() {
+            const favorites = window.productModule?.getFavoriteProducts() || [];
+            const inStockFavorites = favorites.filter(p => p.stock > 0);
+            
+            if (inStockFavorites.length === 0) {
+                window.productUI?.showToast('No items in stock to add to cart', 'error');
+                return;
+            }
+            
+            let addedCount = 0;
+            inStockFavorites.forEach(product => {
+                const success = window.productModule.addToCart(product.id, 1, {
+                    color: product.colors?.[0],
+                    size: product.sizes?.[0]
+                });
+                if (success) addedCount++;
+            });
+            
+            if (addedCount > 0) {
+                window.productUI?.showToast(`Added ${addedCount} items to cart!`, 'success');
+            }
+        }
+        
+        function handleClearFavorites() {
+            const favorites = window.productModule?.state.favorites || [];
+            
+            if (favorites.length === 0) {
+                window.productUI?.showToast('Favorites list is already empty', 'info');
+                return;
+            }
+            
+            if (confirm(`Are you sure you want to remove all ${favorites.length} items from your favorites?`)) {
+                // Remove each favorite
+                favorites.forEach(productId => {
+                    window.productModule.toggleFavorite(productId);
+                });
+                
+                window.productUI?.showToast('All favorites cleared', 'info');
+            }
+        }
+        
+        function handleCreateWishlist() {
+            const user = window.authModule?.getCurrentUser();
+            if (!user) {
+                window.authUI?.showLoginModal();
+                return;
+            }
+            
+            const favorites = window.productModule?.getFavoriteProducts() || [];
+            
+            if (favorites.length === 0) {
+                window.productUI?.showToast('Add some favorites first!', 'error');
+                return;
+            }
+            
+            // Create wishlist modal
+            const modalHTML = `
+                <div class="modal-overlay" id="wishlistModalContent">
+                    <div class="modal-container" style="max-width: 500px;">
+                        <div class="modal-header">
+                            <h2>Create Wishlist</h2>
+                            <button class="modal-close" onclick="closeWishlistModal()">×</button>
+                        </div>
+                        <div class="modal-content">
+                            <div style="padding: 1rem 0;">
+                                <div class="form-group">
+                                    <label class="form-label required">Wishlist Name</label>
+                                    <input type="text" 
+                                           id="wishlistName" 
+                                           class="form-input" 
+                                           placeholder="e.g., Birthday Wishlist, Summer Style"
+                                           maxlength="50">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="form-label">Description (Optional)</label>
+                                    <textarea id="wishlistDescription" 
+                                              class="form-input" 
+                                              rows="3"
+                                              placeholder="Describe your wishlist..."></textarea>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="form-label">Privacy</label>
+                                    <div style="display: flex; gap: 1rem; margin-top: 0.5rem;">
+                                        <label style="display: flex; align-items: center; gap: 0.5rem;">
+                                            <input type="radio" name="privacy" value="private" checked>
+                                            <span>Private (Only you)</span>
+                                        </label>
+                                        <label style="display: flex; align-items: center; gap: 0.5rem;">
+                                            <input type="radio" name="privacy" value="shared">
+                                            <span>Shared (With link)</span>
+                                        </label>
+                                        <label style="display: flex; align-items: center; gap: 0.5rem;">
+                                            <input type="radio" name="privacy" value="public">
+                                            <span>Public (Everyone)</span>
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <div style="margin-top: 2rem;">
+                                    <h3 style="font-size: 1.1rem; margin-bottom: 1rem;">Wishlist Preview</h3>
+                                    <div style="background: var(--color-light); padding: 1rem; border-radius: 0.75rem;">
+                                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                                            <span>Items:</span>
+                                            <strong>${favorites.length}</strong>
+                                        </div>
+                                        <div style="display: flex; justify-content: space-between;">
+                                            <span>Created by:</span>
+                                            <strong>${user.email}</strong>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-actions" style="margin-top: 2rem;">
+                                    <button class="btn btn-primary btn-block" onclick="saveWishlist()">
+                                        <span>✨</span>
+                                        Create Wishlist
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            const modalContainer = document.getElementById('wishlistModal');
+            modalContainer.innerHTML = modalHTML;
+            modalContainer.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+        
+        function closeWishlistModal() {
+            const modal = document.getElementById('wishlistModal');
+            modal.classList.add('hidden');
+            document.body.style.overflow = '';
+        }
+        
+        function saveWishlist() {
+            const nameInput = document.getElementById('wishlistName');
+            const name = nameInput?.value.trim();
+            
+            if (!name) {
+                window.productUI?.showToast('Please enter a wishlist name', 'error');
+                nameInput?.focus();
+                return;
+            }
+            
+            const description = document.getElementById('wishlistDescription')?.value.trim() || '';
+            const privacy = document.querySelector('input[name="privacy"]:checked')?.value || 'private';
+            
+            const favorites = window.productModule?.getFavoriteProducts() || [];
+            const wishlistItems = favorites.map(product => ({
+                productId: product.id,
+                addedAt: new Date().toISOString()
+            }));
+            
+            // In production, this would save to Firestore
+            console.log('Creating wishlist:', { name, description, privacy, items: wishlistItems });
+            
+            window.productUI?.showToast(`"${name}" wishlist created!`, 'success');
+            closeWishlistModal();
+        }
+        
+        function handleFavoritesUpdated() {
+            updateFavoritesDisplay();
+            updateTabCounts();
+        }
+        
+        function loadRelatedProducts() {
+            const allProducts = window.productModule?.getAllProducts() || [];
+            const favorites = window.productModule?.getFavoriteProducts() || [];
+            
+            // Get products not in favorites
+            const favoriteIds = favorites.map(p => p.id);
+            const nonFavoriteProducts = allProducts.filter(p => !favoriteIds.includes(p.id));
+            
+            // Shuffle and take up to 4
+            const shuffled = [...nonFavoriteProducts].sort(() => 0.5 - Math.random());
+            const relatedProducts = shuffled.slice(0, 4);
+            
+            const container = document.getElementById('relatedProducts');
+            if (container && relatedProducts.length > 0) {
+                container.innerHTML = relatedProducts.map(product => 
+                    window.productUI?.generateProductCardHTML?.(product) || ''
+                ).join('');
+            } else if (container) {
+                container.innerHTML = `
+                    <div class="no-products">
+                        <p>No related products found</p>
+                    </div>
+                `;
+            }
+        }
+        
+        // Make functions available globally for inline event handlers
+        window.closeWishlistModal = closeWishlistModal;
+        window.saveWishlist = saveWishlist;
+    </script>
+</body>
+</html>

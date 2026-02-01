@@ -1,0 +1,38 @@
+
+## 🛠️ Setup Instructions
+
+### 1. Firebase Configuration
+1. Create a Firebase project at [firebase.google.com](https://firebase.google.com)
+2. Enable Authentication:
+   - Email/Password provider
+   - Google Sign-in provider
+3. Enable Firestore Database
+4. Update `js/firebaseConfig.js` with your Firebase config
+
+### 2. Firestore Rules
+```javascript
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // User data
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+      allow create: if request.auth != null;
+      
+      // Cart and favorites subcollections
+      match /cart/items {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+      match /favorites/items {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+    }
+    
+    // Orders collection
+    match /orders/{orderId} {
+      allow create: if request.auth != null;
+      allow read: if request.auth != null && 
+        (resource.data.userId == request.auth.uid || request.auth.token.admin == true);
+    }
+  }
+}

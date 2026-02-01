@@ -4,15 +4,15 @@
  * Firebase configuration and initialization with Google Authentication.
  */
 
-// Firebase configuration - USE YOUR CONFIG
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-    apiKey: "AIzaSyAReTKzhf1Q6AS_x4Zh7ofFwVNz0hAWAAY",
-    authDomain: "project-x-9f235.firebaseapp.com",
-    projectId: "project-x-9f235",
-    storageBucket: "project-x-9f235.firebasestorage.app",
-    messagingSenderId: "279161870858",
-    appId: "1:279161870858:web:309ed5154d6c9255829df3",
-    measurementId: "G-9S8RDQMT0Y"
+  apiKey: "AIzaSyAReTKzhf1Q6AS_x4Zh7ofFwVNz0hAWAAY",
+  authDomain: "project-x-9f235.firebaseapp.com",
+  projectId: "project-x-9f235",
+  storageBucket: "project-x-9f235.firebasestorage.app",
+  messagingSenderId: "279161870858",
+  appId: "1:279161870858:web:309ed5154d6c9255829df3",
+  measurementId: "G-9S8RDQMT0Y"
 };
 
 // Global flag to track Firebase initialization
