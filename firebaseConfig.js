@@ -1,5 +1,5 @@
 /**
- * firebaseConfig.js - UPDATED
+ * firebaseConfig.js - FIXED VERSION
  * 
  * Firebase configuration and initialization.
  * This file isolates Firebase setup and exports initialized services.
@@ -10,36 +10,76 @@
  * To modify: Update the firebaseConfig object with your project's credentials.
  */
 
-// Firebase configuration - REPLACE WITH YOUR CONFIG
+// Firebase configuration - USE YOUR CONFIG HERE
 const firebaseConfig = {
-    apiKey: "AIzaSyDummyKey-Example-ReplaceWithYours",
-    authDomain: "your-project-id.firebaseapp.com",
-    projectId: "your-project-id",
-    storageBucket: "your-project-id.appspot.com",
-    messagingSenderId: "1234567890",
-    appId: "1:1234567890:web:abcdef123456"
+    apiKey: "AIzaSyAReTKzhf1Q6AS_x4Zh7ofFwVNz0hAWAAY",
+    authDomain: "project-x-9f235.firebaseapp.com",
+    projectId: "project-x-9f235",
+    storageBucket: "project-x-9f235.firebasestorage.app",
+    messagingSenderId: "279161870858",
+    appId: "1:279161870858:web:309ed5154d6c9255829df3",
+    measurementId: "G-9S8RDQMT0Y"
 };
 
 // Global flag to track Firebase initialization
 window.firebaseReady = false;
 window.firebaseError = null;
+window.firebaseServices = null;
 
 /**
  * Initialize Firebase with error handling
  */
 function initializeFirebase() {
+    console.log("Initializing Firebase...");
+    
+    // Check if Firebase SDK is loaded
+    if (typeof firebase === 'undefined') {
+        const error = new Error('Firebase SDK not loaded. Check script tags in HTML.');
+        console.error(error);
+        window.firebaseError = error;
+        showFirebaseError('Firebase SDK not loaded. Check browser console.');
+        throw error;
+    }
+    
     try {
         // Check if Firebase is already initialized
         if (firebase.apps.length > 0) {
             console.log("Firebase already initialized");
-            window.firebaseReady = true;
-            return window.firebase.app();
+            const app = firebase.app();
+            setupFirebaseServices(app);
+            return app;
         }
         
         // Initialize Firebase
         const app = firebase.initializeApp(firebaseConfig);
         console.log("Firebase initialized successfully");
         
+        setupFirebaseServices(app);
+        return app;
+        
+    } catch (error) {
+        console.error("Firebase initialization error:", error);
+        window.firebaseReady = false;
+        window.firebaseError = error;
+        
+        // Create stub services
+        window.firebaseServices = {
+            app: null,
+            auth: null,
+            db: null,
+            firebase: firebase
+        };
+        
+        showFirebaseError('Firebase initialization failed. Check console.');
+        throw error;
+    }
+}
+
+/**
+ * Sets up Firebase services after initialization
+ */
+function setupFirebaseServices(app) {
+    try {
         // Get services
         const auth = firebase.auth();
         const db = firebase.firestore();
@@ -65,31 +105,13 @@ function initializeFirebase() {
         window.firebaseReady = true;
         window.firebaseError = null;
         
+        console.log("Firebase services set up successfully");
+        
         // Dispatch custom event for other modules
         document.dispatchEvent(new CustomEvent('firebaseReady'));
         
-        return app;
-        
     } catch (error) {
-        console.error("Firebase initialization error:", error);
-        window.firebaseReady = false;
-        window.firebaseError = error;
-        
-        // Create stub services
-        window.firebaseServices = {
-            app: null,
-            auth: null,
-            db: null,
-            firebase: null
-        };
-        
-        // Show user-friendly error after DOM loads
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', showFirebaseError);
-        } else {
-            showFirebaseError();
-        }
-        
+        console.error("Failed to set up Firebase services:", error);
         throw error;
     }
 }
@@ -97,18 +119,31 @@ function initializeFirebase() {
 /**
  * Shows Firebase configuration error to user
  */
-function showFirebaseError() {
+function showFirebaseError(message) {
+    console.error("Firebase Error:", message);
+    
+    // Wait for DOM to be ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => showFirebaseErrorUI(message));
+    } else {
+        showFirebaseErrorUI(message);
+    }
+}
+
+/**
+ * Shows Firebase error in UI
+ */
+function showFirebaseErrorUI(message) {
     const authButtons = document.getElementById('authButtons');
     if (authButtons) {
         authButtons.innerHTML = `
             <div class="error-message" style="background: #fff0f0; padding: 1rem; border-radius: 0.5rem; border: 1px solid #ffcccc;">
                 <p style="color: #cc0000; margin: 0 0 0.5rem 0; font-weight: bold;">
-                    ⚠️ Firebase Configuration Required
+                    ⚠️ Firebase Error
                 </p>
                 <p style="color: #666; margin: 0; font-size: 0.9rem;">
-                    1. Open <strong>js/firebaseConfig.js</strong><br>
-                    2. Replace placeholder values with your Firebase config<br>
-                    3. Refresh the page
+                    ${message}<br>
+                    Check browser console for details.
                 </p>
             </div>
         `;
@@ -118,7 +153,7 @@ function showFirebaseError() {
     const authMessage = document.getElementById('authMessage');
     if (authMessage) {
         authMessage.innerHTML = `
-            <p><strong>Setup Required:</strong> Please configure Firebase to enable authentication.</p>
+            <p><strong>Firebase Error:</strong> ${message}</p>
             <p>Check the browser console for detailed instructions.</p>
         `;
     }
@@ -170,7 +205,7 @@ function waitForFirebase() {
         }
         
         let attempts = 0;
-        const maxAttempts = 30; // 3 seconds max
+        const maxAttempts = 50; // 5 seconds max
         
         const checkInterval = setInterval(() => {
             attempts++;
@@ -183,18 +218,39 @@ function waitForFirebase() {
                 reject(window.firebaseError);
             } else if (attempts >= maxAttempts) {
                 clearInterval(checkInterval);
-                reject(new Error('Firebase initialization timeout'));
+                reject(new Error('Firebase initialization timeout after 5 seconds'));
             }
         }, 100);
     });
 }
 
-// Initialize Firebase immediately
-try {
-    initializeFirebase();
-} catch (error) {
-    console.error("Failed to initialize Firebase:", error);
-}
+// Initialize Firebase when the script loads
+// But only if Firebase SDK is available
+(function init() {
+    console.log("Loading Firebase configuration...");
+    
+    // Wait a bit for Firebase SDK to load if needed
+    if (typeof firebase === 'undefined') {
+        console.warn("Firebase SDK not loaded yet, waiting...");
+        
+        // Try again after a short delay
+        setTimeout(() => {
+            if (typeof firebase !== 'undefined') {
+                initializeFirebase();
+            } else {
+                console.error("Firebase SDK still not loaded after delay");
+                showFirebaseError('Firebase SDK failed to load. Check network and script tags.');
+            }
+        }, 1000);
+    } else {
+        // Firebase SDK is loaded, initialize now
+        try {
+            initializeFirebase();
+        } catch (error) {
+            console.error("Failed to initialize Firebase:", error);
+        }
+    }
+})();
 
 // Export utility functions
 window.firebaseUtils = {
@@ -207,4 +263,4 @@ window.firebaseUtils = {
 };
 
 // For debugging
-console.log("Firebase utilities loaded");
+console.log("Firebase utilities module loaded");
